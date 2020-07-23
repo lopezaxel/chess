@@ -44,6 +44,18 @@ class Pawn
     end
   end
 
+  def attack_moves(move)
+    pawn_col = move[0]
+    piece_row = move[1]
+    piece_col = move[2]
+
+    piece = gameboard.board[piece_row][piece_col]
+    pawn = gameboard.board[piece_row - 1][pawn_col]
+
+    return false if empty_string?(piece) || same_color?(piece)
+    return pawn if is_a_pawn?(pawn) && same_color?(pawn)
+  end
+
   def hasnt_moved?(pawn)
     pawn.initial_position == pawn.position
   end

@@ -43,4 +43,30 @@ describe "Pawn" do
       end
     end
   end
+
+  describe "#attack_moves" do
+    gameboard = Gameboard.new
+    piece = Pawn.new(gameboard, "white", [4, 5])
+    pawn = Pawn.new(gameboard, "black", [3, 4])
+
+    context "pawn attacks piece" do
+      it "return pawn" do
+        gameboard.board[4][5] = piece
+        gameboard.board[3][4] = pawn
+        expect(pawn.attack_moves([4, 4, 5])).to eql(pawn)
+      end
+
+      it "return false if same color" do
+        gameboard.board[6][6] = pawn
+        gameboard.board[5][7] = pawn
+        expect(pawn.attack_moves([1, 3, 2])).to eql(false)
+      end
+
+      it "return false if empty attacked square" do
+        gameboard.board[2][4] = " "
+        gameboard.board[1][3] = pawn
+        expect(pawn.attack_moves([1, 3, 2])).to eql(false)
+      end
+    end
+  end
 end
