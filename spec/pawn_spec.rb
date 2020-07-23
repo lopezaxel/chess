@@ -1,3 +1,4 @@
-require './lib/pawn.rb'
+require './lib/gameboard.rb'
 
-
+describe "Pawn" do
+end
