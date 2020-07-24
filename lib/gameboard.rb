@@ -11,7 +11,7 @@ class Gameboard
 end
 
 class Pawn
-  attr_reader :gameboard, :color, :position
+  attr_reader :gameboard, :color, :position, :direction
   attr_accessor :initial_position
 
   def initialize(gameboard, color, position)
@@ -19,6 +19,7 @@ class Pawn
     @color = color
     @initial_position = position
     @position = initial_position
+    @direction = pick_direction
   end
 
   def moves(square)
@@ -27,8 +28,8 @@ class Pawn
     row = square[0]
     col = square[1]
 
-    piece_one = gameboard.board[row - 1][col]
-    piece_two = gameboard.board[row - 2][col]
+    piece_one = gameboard.board[row + direction][col]
+    piece_two = gameboard.board[row + direction * 2][col]
 
     check_moves(piece_one, piece_two)
   end
@@ -36,7 +37,7 @@ class Pawn
   def check_moves(piece_one, piece_two)
     if is_a_pawn?(piece_one) && same_color?(piece_one)
       piece_one
-    elsif empty_string?(piece_one) && is_a_pawn?(piece_two) &&
+    elsif is_empty?(piece_one) && is_a_pawn?(piece_two) &&
     same_color?(piece_two) && hasnt_moved?(piece_two)
       piece_two
     else
@@ -50,10 +51,43 @@ class Pawn
     piece_col = move[2]
 
     piece = gameboard.board[piece_row][piece_col]
-    pawn = gameboard.board[piece_row - 1][pawn_col]
+    pawn = gameboard.board[piece_row + direction][pawn_col]
 
-    return false if empty_string?(piece) || same_color?(piece)
+    return false if is_empty?(piece) || same_color?(piece)
     return pawn if is_a_pawn?(pawn) && same_color?(pawn)
+  end
+
+  def promotion(move)
+    row = move[0]
+    col = move[1]
+    piece_letter = move[2]
+
+    if white? && row == gameboard.board.size - 1 || black? && row == 0
+      gameboard.board[row][col] = promote(piece_letter)
+    else
+      false
+    end
+  end
+
+  def promote(letter)
+    case letter
+    when "Q"
+      #Queen.new
+    when "R"
+      #Rook.new
+    when "B"
+      #Bishop.new
+    when "N"
+      #Knight.new
+    end
+  end
+
+  def pick_direction
+    if white?
+      -1
+    elsif black?
+      1
+    end
   end
 
   def hasnt_moved?(pawn)
@@ -68,7 +102,7 @@ class Pawn
     piece.class == Pawn
   end
 
-  def empty_string?(string)
+  def is_empty?(string)
     string == " "
   end
 
@@ -76,6 +110,14 @@ class Pawn
     row = square[0]
     col = square[1]
     gameboard.board[row][col] == " "
+  end
+
+  def white?
+    color == "white"
+  end
+
+  def black?
+    color == "black"
   end
 end
 
