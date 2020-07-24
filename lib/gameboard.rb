@@ -10,15 +10,46 @@ class Gameboard
   end
 end
 
-class Pawn
-  attr_reader :gameboard, :color, :position, :direction
-  attr_accessor :initial_position
+class Piece
+  attr_reader :gameboard, :color
+  attr_accessor :position
 
   def initialize(gameboard, color, position)
     @gameboard = gameboard
     @color = color
+    @position = position
+  end
+
+  def same_color?(pawn)
+    pawn.color == color
+  end
+
+  def is_empty?(string)
+    string == " "
+  end
+
+  def square_empty?(square)
+    row = square[0]
+    col = square[1]
+    gameboard.board[row][col] == " "
+  end
+
+  def white?
+    color == "white"
+  end
+
+  def black?
+    color == "black"
+  end
+end
+
+class Pawn < Piece
+  attr_reader :direction
+  attr_accessor :initial_position
+
+  def initialize(gameboard, color, position)
+    super(gameboard, color, position)
     @initial_position = position
-    @position = initial_position
     @direction = pick_direction
   end
 
@@ -94,30 +125,8 @@ class Pawn
     pawn.initial_position == pawn.position
   end
 
-  def same_color?(pawn)
-    pawn.color == color
-  end
-
   def is_a_pawn?(piece)
     piece.class == Pawn
-  end
-
-  def is_empty?(string)
-    string == " "
-  end
-
-  def square_empty?(square)
-    row = square[0]
-    col = square[1]
-    gameboard.board[row][col] == " "
-  end
-
-  def white?
-    color == "white"
-  end
-
-  def black?
-    color == "black"
   end
 end
 
