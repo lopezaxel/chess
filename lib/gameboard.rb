@@ -19,6 +19,8 @@ class Gameboard
     row = move[0]
     col = move[1]
 
+    return if row.nil? || col.nil?
+
     row >= 0 && row <= board_size && col >= 0 && col <= board_size
   end
 end

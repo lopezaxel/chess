@@ -1,13 +1,8 @@
 require "./lib/piece.rb"
-require 'pry'
 
 class Bishop < Piece
   def initialize(gameboard, color, position)
     super(gameboard, color, position)
-  end
-
-  def is_a_bishop?(piece)
-    piece.class == Bishop
   end
 
   def moves(move)
@@ -20,58 +15,46 @@ class Bishop < Piece
     col = move[1]
     bishops = []
 
-    bishops << top_diagonal(row, col, "right")
-    bishops << top_diagonal(row, col, "left")
-    bishops << bottom_diagonal(row, col, "right")
-    bishops << bottom_diagonal(row, col, "left")
+    bishops << diagonal(row, col, "right", "top")
+    bishops << diagonal(row, col, "left", "top")
+    bishops << diagonal(row, col, "right", "bottom")
+    bishops << diagonal(row, col, "left", "bottom")
 
     bishops.keep_if { |b| b != false }
   end
 
-  def top_diagonal(row, col, direction)
-    row.upto(row + 8) do |r|
+  def row_direction(row, direction)
+    case direction
+    when "top"
+      (row..row + 8).to_a
+    when "bottom"
+      (row - 8..row).to_a.reverse
+    end
+  end
+
+  def diagonal(row, col, col_dir, row_dir)
+    squares = row_direction(row, row_dir)
+    squares.each do |r|
       return false unless gameboard.inside_board?([r, col])
 
       square = gameboard.board[r][col]
 
       if is_a_bishop?(square) && same_color?(square)
         return square
-      elsif !is_empty?(square)
+      elsif !is_empty?(square) && [r, col] != [row, col]
         return false
       end
 
-      case direction
-      when "left"
-        col -= 1
-      when "right"
-        col += 1
-      end
-    end
-  end
-
-  def bottom_diagonal(row, col, direction)
-    row.downto(row - 8) do |r|
-      return false unless gameboard.inside_board?([r, col])
-
-      square = gameboard.board[r][col]
-
-      if valid_bishop?(square)
-        return square
-      elsif !is_empty?(square)
-        return false
-      end
-
-      case direction
-      when "right"
-        col += 1
-      when "left"
-        col -= 1
-      end
+      col = choose_direction(col, col_dir)
     end
   end
 
   def valid_bishop?(square)
     is_a_bishop?(square) && same_color?(square)
+  end
+
+  def is_a_bishop?(piece)
+    piece.class == Bishop
   end
 end
 

@@ -54,5 +54,14 @@ class Piece
       false
     end
   end
+
+  def choose_direction(num, direction)
+    case direction
+    when "right"
+      num += 1
+    when "left"
+      num -= 1
+    end
+  end
 end
 
