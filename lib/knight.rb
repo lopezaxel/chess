@@ -8,14 +8,7 @@ class Knight < Piece
   def moves(move)
     moves = possible_moves(move) 
     knights = possible_knights(moves)
-
-    if knights.length > 1
-      pick_knight(knights, move.last)
-    elsif knights.length == 1
-      knights.first
-    else
-      false
-    end
+    disambiguate(knights, move)
   end
 
   def possible_moves(move)
@@ -45,20 +38,6 @@ class Knight < Piece
     end
 
     knights
-  end
-
-  def pick_knight(knights, dif)
-    row_or_col = disambiguate(knights)
-    knights.each do |knight|
-      return knight if knight.position[row_or_col] == dif
-    end
-  end
-
-  def disambiguate(positions)
-    knight_1 = positions[0]
-    knight_2 = positions[1]
-
-    knight_1.position[1] == knight_2.position[1] ? 0 : 1
   end
 
   def is_a_knight?(piece)

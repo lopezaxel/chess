@@ -1,4 +1,5 @@
 require "./lib/piece.rb"
+require 'pry'
 
 class Bishop < Piece
   def initialize(gameboard, color, position)
@@ -9,23 +10,28 @@ class Bishop < Piece
     piece.class == Bishop
   end
 
-  def diagonals(square)
-    row = square[0]
-    col = square[1]
+  def moves(move)
+    bishops = diagonals(move)
+    disambiguate(bishops, move)
+  end
+
+  def diagonals(move)
+    row = move[0]
+    col = move[1]
     bishops = []
 
-    bishops << top_right_diagonal(row, col)
-    bishops << top_left_diagonal(row, col)
-    bishops << bottom_right_diagonal(row, col)
-    bishops << bottom_left_diagonal(row, col)
+    bishops << top_diagonal(row, col, "right")
+    bishops << top_diagonal(row, col, "left")
+    bishops << bottom_diagonal(row, col, "right")
+    bishops << bottom_diagonal(row, col, "left")
 
     bishops.keep_if { |b| b != false }
-
-    bishops
   end
 
-  def top_right_diagonal(row, col)
+  def top_diagonal(row, col, direction)
     row.upto(row + 8) do |r|
+      return false unless gameboard.inside_board?([r, col])
+
       square = gameboard.board[r][col]
 
       if is_a_bishop?(square) && same_color?(square)
@@ -34,50 +40,38 @@ class Bishop < Piece
         return false
       end
 
-      col += 1
-    end
-  end
-
-  def top_left_diagonal(row, col)
-    row.upto(row + 8) do |r|
-      square = gameboard.board[r][col]
-
-      if is_a_bishop?(square) && same_color?(square)
-        return square
-      elsif !is_empty?(square)
-        return false
+      case direction
+      when "left"
+        col -= 1
+      when "right"
+        col += 1
       end
-
-      col -= 1
     end
   end
 
-  def bottom_right_diagonal(row, col)
+  def bottom_diagonal(row, col, direction)
     row.downto(row - 8) do |r|
+      return false unless gameboard.inside_board?([r, col])
+
       square = gameboard.board[r][col]
 
-      if is_a_bishop?(square) && same_color?(square)
+      if valid_bishop?(square)
         return square
       elsif !is_empty?(square)
         return false
       end
 
-      col += 1
+      case direction
+      when "right"
+        col += 1
+      when "left"
+        col -= 1
+      end
     end
   end
 
-  def bottom_left_diagonal(row, col)
-    row.downto(row - 8) do |r|
-      square = gameboard.board[r][col]
-
-      if is_a_bishop?(square) && same_color?(square)
-        return square
-      elsif !is_empty?(square)
-        return false
-      end
-
-      col -= 1
-    end
+  def valid_bishop?(square)
+    is_a_bishop?(square) && same_color?(square)
   end
 end
 

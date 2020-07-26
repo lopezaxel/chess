@@ -70,26 +70,5 @@ describe "Knight" do
       expect(knight_one.possible_knights(moves)).to eql([knight_one, knight_two])
     end
   end
-
-  describe "#pick_knight" do
-    gameboard = Gameboard.new
-    knight_one = Knight.new(gameboard, "black", [2, 7])
-    knight_two = Knight.new(gameboard, "black", [6, 7])
-
-
-    context "when 2 knights" do
-      it "return correct knight if same column" do
-        knight = knight_one.pick_knight([knight_one, knight_two], 6)
-        expect(knight).to be(knight_two)
-      end
-
-      it "return correct knight if same row" do
-        knight_one.position = [4, 4]
-        knight_two.position = [4, 6]
-        knight = knight_one.pick_knight([knight_one, knight_two], 6)
-        expect(knight).to be(knight_two)
-      end
-    end
-  end
 end
 
