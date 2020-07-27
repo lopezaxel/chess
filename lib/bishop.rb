@@ -15,34 +15,34 @@ class Bishop < Piece
     col = move[1]
     bishops = []
 
-    bishops << diagonal(row, col, "right", "top")
-    bishops << diagonal(row, col, "left", "top")
-    bishops << diagonal(row, col, "right", "bottom")
-    bishops << diagonal(row, col, "left", "bottom")
+    bishops << diagonal(row, col, "top_right")
+    bishops << diagonal(row, col, "top_left")
+    bishops << diagonal(row, col, "bottom_right")
+    bishops << diagonal(row, col, "bottom_left")
 
     remove_falses(bishops)
   end
 
   def row_direction(row, direction)
     case direction
-    when "top"
+    when "top_left", "top_right"
       (row..row + 8)
-    when "bottom"
+    when "bottom_left", "bottom_right"
       (row - 8..row).to_a.reverse
     end
   end
 
   def column_direction(num, direction)
     case direction
-    when "right"
+    when "bottom_right", "top_right"
       num += 1
-    when "left"
+    when "bottom_left", "top_left"
       num -= 1
     end
   end
 
-  def diagonal(row, col, col_dir, row_dir)
-    row_direction(row, row_dir).each do |r|
+  def diagonal(row, col, direction)
+    row_direction(row, direction).each do |r|
       return false unless gameboard.inside_board?([r, col])
 
       square = gameboard.board[r][col]
@@ -53,7 +53,7 @@ class Bishop < Piece
         return false
       end
 
-      col = column_direction(col, col_dir)
+      col = column_direction(col, direction)
     end
   end
 

@@ -89,12 +89,12 @@ describe "Bishop" do
     context "bishop in top right diagonal" do
       it "if empty diagonal return bishop in 6, 6" do
         gameboard.board[6][6] = bishop
-        expect(bishop.diagonal(3, 3, "right", "top")).to eql(bishop)
+        expect(bishop.diagonal(3, 3, "top_right")).to eql(bishop)
       end
 
       it "return false if piece same color before bishop" do
         gameboard.board[5][5] = pawn
-        expect(bishop.diagonal(3, 3, "right", "top")).to eql(false)
+        expect(bishop.diagonal(3, 3, "top_right")).to eql(false)
       end
     end
 
@@ -105,17 +105,17 @@ describe "Bishop" do
 
       it "if empty diagonal return bishop in 6, 6" do
         gameboard.board[6][0] = bishop
-        expect(bishop.diagonal(3, 3, "left", "top")).to eql(bishop)
+        expect(bishop.diagonal(3, 3, "top_left")).to eql(bishop)
       end
 
       it "if empty diagonal return bishop in 1, 7" do
         gameboard.board[5][3] = bishop
-        expect(bishop.diagonal(1, 7, "left", "top")).to eql(bishop)
+        expect(bishop.diagonal(1, 7, "top_left")).to eql(bishop)
       end
 
       it "return false if piece same color before bishop" do
         gameboard.board[5][1] = pawn
-        expect(bishop.diagonal(3, 3, "left", "top")).to eql(false)
+        expect(bishop.diagonal(3, 3, "top_left")).to eql(false)
       end
     end
 
@@ -126,17 +126,17 @@ describe "Bishop" do
 
       it "if empty diagonal return bishop in 0, 6" do
         gameboard.board[0][6] = bishop
-        expect(bishop.diagonal(3, 3, "right", "bottom")).to eql(bishop)
+        expect(bishop.diagonal(3, 3, "bottom_right")).to eql(bishop)
       end
 
       it "if empty diagonal return bishop in 1, 7" do
         gameboard.board[1][7] = bishop
-        expect(bishop.diagonal(5, 3, "right", "bottom")).to eql(bishop)
+        expect(bishop.diagonal(5, 3, "bottom_right")).to eql(bishop)
       end
 
       it "return false if piece same color before bishop" do
         gameboard.board[1][5] = pawn
-        expect(bishop.diagonal(3, 3, "right", "bottom")).to eql(false)
+        expect(bishop.diagonal(3, 3, "bottom_right")).to eql(false)
       end
     end
 
@@ -147,12 +147,12 @@ describe "Bishop" do
 
       it "if empty diagonal return bishop in 6, 6" do
         gameboard.board[0][0] = bishop
-        expect(bishop.diagonal(3, 3, "left", "bottom")).to eql(bishop)
+        expect(bishop.diagonal(3, 3, "bottom_left")).to eql(bishop)
       end
 
       it "return false if piece same color before bishop" do
         gameboard.board[1][1] = pawn
-        expect(bishop.diagonal(3, 3, "left", "bottom")).to eql(false)
+        expect(bishop.diagonal(3, 3, "bottom_left")).to eql(false)
       end
 
       it "if empty diagonal return bishop in 1, 7" do
@@ -161,7 +161,7 @@ describe "Bishop" do
         pawn = Pawn.new(gameboard, "white", [5, 5])
 
         gameboard.board[1][7] = bishop
-        expect(bishop.diagonal(5, 3, "left", "bottom")).to eql(false)
+        expect(bishop.diagonal(5, 3, "bottom_left")).to eql(false)
       end
     end
   end

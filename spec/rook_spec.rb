@@ -2,14 +2,14 @@ require "./lib/rook.rb"
 require "./lib/gameboard.rb"
 
 describe "Rook" do
-  describe "#valid_move" do
+  describe "#moves" do
     context "movement" do
       it "return true with rook at top" do
         gameboard = Gameboard.new
         rook = Rook.new(gameboard, "white", [6, 3])
         gameboard.board[6][3] = rook
 
-        expect(rook.valid_move([2, 3])).to eql(rook)
+        expect(rook.moves([2, 3])).to eql(rook)
       end
 
       it "return true with rook at bottom" do
@@ -17,7 +17,7 @@ describe "Rook" do
         rook = Rook.new(gameboard, "white", [0, 3])
         gameboard.board[0][3] = rook
 
-        expect(rook.valid_move([3, 3])).to eql(rook)
+        expect(rook.moves([3, 3])).to eql(rook)
       end
 
       it "return true with rook at left" do
@@ -25,7 +25,7 @@ describe "Rook" do
         rook = Rook.new(gameboard, "white", [5, 5])
         gameboard.board[5][5] = rook
 
-        expect(rook.valid_move([5, 0])).to eql(rook)
+        expect(rook.moves([5, 0])).to eql(rook)
       end
 
       it "return true with rook at right" do
@@ -33,7 +33,7 @@ describe "Rook" do
         rook = Rook.new(gameboard, "white", [2, 1])
         gameboard.board[2][1] = rook
 
-        expect(rook.valid_move([2, 7])).to eql(rook)
+        expect(rook.moves([2, 7])).to eql(rook)
       end
     end
 
@@ -45,7 +45,7 @@ describe "Rook" do
         gameboard.board[7][7] = rook
         gameboard.board[7][3] = black_rook
 
-        expect(rook.valid_move([7, 3])).to eql(rook)
+        expect(rook.moves([7, 3])).to eql(rook)
       end
 
       it "return true same column" do
@@ -55,7 +55,7 @@ describe "Rook" do
         gameboard.board[7][7] = rook
         gameboard.board[1][7] = black_rook
 
-        expect(rook.valid_move([1, 7])).to eql(rook)
+        expect(rook.moves([1, 7])).to eql(rook)
       end
     end
 
@@ -67,7 +67,7 @@ describe "Rook" do
         gameboard.board[6][7] = rook
         gameboard.board[6][5] = black_rook
 
-        expect(rook.valid_move([6, 1])).to eql(false)
+        expect(rook.moves([6, 1])).to eql(false)
       end
 
       it "return false if piece before column" do
@@ -77,7 +77,7 @@ describe "Rook" do
         gameboard.board[0][2] = rook
         gameboard.board[0][4] = black_rook
 
-        expect(rook.valid_move([0, 7])).to eql(false)
+        expect(rook.moves([0, 7])).to eql(false)
       end
     end
 
@@ -89,7 +89,7 @@ describe "Rook" do
         gameboard.board[2][0] = rook
         gameboard.board[2][7] = rook_two
 
-        expect(rook.valid_move([2, 5, 0])).to eql(rook)
+        expect(rook.moves([2, 5, 0])).to eql(rook)
       end
     end
   end

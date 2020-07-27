@@ -5,8 +5,8 @@ class Rook < Piece
     super(gameboard, color, position)
   end
 
-  def valid_move(move)
-    rooks = moves(move)
+  def moves(move)
+    rooks = rook_moves(move)
     disambiguate(rooks, move)
   end
 
@@ -24,7 +24,7 @@ class Rook < Piece
     end
   end
 
-  def moves(move)
+  def rook_moves(move)
     row = move[0]
     col = move[1]
     rooks = []
@@ -51,6 +51,7 @@ class Rook < Piece
   end
 
   def pick_square(direction, row, col, i)
+    return if gameboard.board.nil? || row.nil? || col.nil? || i.nil?
     case direction
       when "top", "bottom"
         gameboard.board[i][col]
