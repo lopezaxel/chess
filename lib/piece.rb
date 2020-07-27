@@ -30,6 +30,16 @@ class Piece
     color == "black"
   end
 
+  def disambiguate(pieces, move)
+    if pieces.length > 1
+      disambiguation(pieces, move.last)
+    elsif pieces.length == 1
+      pieces.first
+    else
+      false
+    end
+  end
+
   def disambiguation(pieces, diff)
     row_or_col = pick_difference(pieces)
     pieces.each do |piece|
@@ -45,23 +55,13 @@ class Piece
     columns_are_equal ? 0 : 1
   end
 
-  def disambiguate(pieces, move)
-    if pieces.length > 1
-      disambiguation(pieces, move.last)
-    elsif pieces.length == 1
-      pieces.first
-    else
-      false
-    end
+  def remove_falses(array)
+    array.keep_if { |i| i != false }
   end
 
-  def choose_direction(num, direction)
-    case direction
-    when "right"
-      num += 1
-    when "left"
-      num -= 1
-    end
+  def not_initial_square(row, col, i)
+    [i, col] != [row, col] && [row, i] != [row, col]
   end
+
 end
 

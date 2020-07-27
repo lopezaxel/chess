@@ -66,6 +66,19 @@ describe "Bishop" do
         end
       end
     end
+
+    context "double bishops" do
+      it "return true" do
+        gameboard = Gameboard.new
+        bishop_1 = Bishop.new(gameboard, "white", [6, 0])
+        bishop_2 = Bishop.new(gameboard, "white", [6, 2])
+        gameboard.board[6][0] = bishop_1
+        gameboard.board[6][2] = bishop_2
+
+        expect(bishop_1.moves([7, 1, 0])).to eql(bishop_1)
+        expect(bishop_1.moves([7, 1, 2])).to eql(bishop_2)
+      end
+    end
   end
 
   describe "#diagonal" do
