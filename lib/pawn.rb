@@ -52,6 +52,8 @@ class Pawn < Piece
 
     if white? && row == gameboard.board_size || black? && row == 0
       gameboard.board[row][col] = promote(piece_letter)
+      #gameboard.board[row][col].color = color
+      #gameboard.board[row][col].position = [row, col]
     else
       false
     end

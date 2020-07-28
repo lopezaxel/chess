@@ -62,6 +62,5 @@ class Piece
   def not_initial_square(row, col, i)
     [i, col] != [row, col] && [row, i] != [row, col]
   end
-
 end
 

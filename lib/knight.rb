@@ -25,7 +25,7 @@ class Knight < Piece
     moves << [row - 2, col + 1]
     moves << [row - 2, col - 1]
 
-    moves.sort.keep_if { |m| gameboard.inside_board?(m) }
+    gameboard.delete_moves_outside_board(moves)
   end
 
   def possible_knights(moves)
@@ -33,7 +33,6 @@ class Knight < Piece
 
     moves.each do |move|
       square = gameboard.board[move[0]][move[1]]
-
       knights << square if is_a_knight?(square) && same_color?(square)
     end
 

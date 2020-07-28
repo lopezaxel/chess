@@ -23,9 +23,9 @@ class Gameboard
 
     row >= 0 && row <= board_size && col >= 0 && col <= board_size
   end
-end
 
-gameboard = Gameboard.new
-white_pawn = Pawn.new(gameboard, "white", [1, 1])
-black_pawn = Pawn.new(gameboard, "black", [6, 1])
+  def delete_moves_outside_board(moves)
+    moves.keep_if { |move| inside_board?(move) }.sort
+  end
+end
 
