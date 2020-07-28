@@ -41,8 +41,23 @@ class Pawn < Piece
     piece = gameboard.board[piece_row][piece_col]
     pawn = gameboard.board[piece_row + direction][pawn_col]
 
-    return false if is_empty?(piece) || same_color?(piece)
-    return pawn if is_a_pawn?(pawn) && same_color?(pawn)
+    #return false if is_empty?(piece) || same_color?(piece)
+    if is_a_pawn?(pawn) && same_color?(pawn)
+      pawn
+    else
+      false
+    end
+  end
+
+  def support_moves(square)
+    row = square[0]
+    col = square[1]
+  
+    if attack_moves([col + 1, row, col]) || attack_moves([col - 1, row, col])
+      true
+    else
+      false
+    end
   end
 
   def promotion(move)

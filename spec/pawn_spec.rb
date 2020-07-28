@@ -76,9 +76,12 @@ describe "Pawn" do
         gameboard.board[4][4] = pawn
         expect(pawn.attack_moves([4, 3, 3])).to eql(pawn)
 
+        gameboard = Gameboard.new
+        piece = Pawn.new(gameboard, "white", [5, 4])
+        pawn = Pawn.new(gameboard, "black", [6, 5])
         gameboard.board[5][4] = piece
         gameboard.board[6][5] = pawn
-        expect(piece.attack_moves([4, 6, 5])).to eql(piece)
+        expect(pawn.attack_moves([5, 5, 4])).to eql(pawn)
       end
 
       it "return false if same color" do
