@@ -1,9 +1,12 @@
 require './lib/piece.rb'
 
 class King < Piece
+  attr_reader :game
+
   def initialize(gameboard, color, position)
     super(gameboard, color, position)
     @initial_position = position
+    @game = Game.new(gameboard, 1, 1)
   end
 
   def moves(square)
@@ -38,10 +41,6 @@ class King < Piece
     moves << [row - 1, col - 1]
 
     gameboard.delete_moves_outside_board(moves)
-  end
-
-  def attack_moves(square)
-
   end
 
   def is_a_king?(piece)

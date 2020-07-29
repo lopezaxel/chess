@@ -30,6 +30,14 @@ class Piece
     color == "black"
   end
 
+  def contrary_color
+    if white?
+      "black"
+    elsif black?
+      "white"
+    end
+  end
+
   def disambiguate(pieces, move)
     if pieces.length > 1
       disambiguation(pieces, move.last)
