@@ -68,6 +68,60 @@ class Game
       false
     end
   end
+
+  def convert_pawn_move_to_number(move)
+    if is_a_pawn_move?(move) 
+      file = column_to_number(move[0]) - 1
+      rank = move[1]
+
+      [rank, file]
+    elsif is_a_pawn_attack_move?(move) 
+      file_1 = column_to_number(move[0]) - 1
+      file_2 = column_to_number(move[2]) - 1 
+      rank = move[3] - 1
+
+      [file_1, rank, file_2]
+    # elsif is_a_promotion_move?(move)
+      # promote
+    end
+  end
+
+  def is_a_promotion_move?(move)
+    is_a_file?(move[0]) && is_a_rank?(move[1]) && is_an_equals?(move[2]) && 
+      ['N', 'B', 'R', 'Q'].include?(move[3])
+  end
+
+  def is_a_pawn_move?(move)
+    move.size == 2 && is_a_file?(move[0]) && is_a_rank?(move[1])
+  end
+
+  def is_a_pawn_attack_move?(move)
+    is_a_file?(move[0]) && is_a_x?(move[1]) && is_a_pawn_move?(move[2..3])
+  end
+
+  def is_a_piece?(letter)
+    ['N', 'K', 'Q', 'R', 'B'].include?(letter)
+  end
+
+  def is_a_file?(letter)
+    ('a'..'h').include?(letter)
+  end
+
+  def is_a_rank?(letter)
+    (1..8).include?(letter)
+  end
+
+  def column_to_number(column)
+    column.ord - 96
+  end
+
+  def is_a_x?(letter)
+    letter == 'x'
+  end
+
+  def is_an_equals?(letter)
+    letter == '='
+  end
 end
 
 gameboard = Gameboard.new
