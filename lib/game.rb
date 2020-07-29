@@ -68,22 +68,52 @@ class Game
       false
     end
   end
+  
+  def convert_piece_move(move)
+    if is_a_disambiguating_move?(move)
+      final_move = convert_pawn_move(move[-2..-1])
+      final_move << convert_rank_or_file(move[1])
+    elsif is_a_piece?(move[0])
+      convert_pawn_move(move[-2..-1])
+    end
+  end
 
-  def convert_pawn_move_to_number(move)
+  def convert_rank_or_file(letter)
+    if is_a_rank?(letter)
+      rank_to_number(letter)
+    elsif is_a_file?(letter)
+      file_to_number(letter)
+    end
+  end
+
+  def convert_pawn_move(move)
     if is_a_pawn_move?(move) 
-      file = column_to_number(move[0]) - 1
-      rank = move[1]
+      file = file_to_number(move[0])
+      rank = rank_to_number(move[1])
 
       [rank, file]
     elsif is_a_pawn_attack_move?(move) 
-      file_1 = column_to_number(move[0]) - 1
-      file_2 = column_to_number(move[2]) - 1 
-      rank = move[3] - 1
+      file_1 = file_to_number(move[0])
+      file_2 = file_to_number(move[2])
+      rank = rank_to_number(move[3])
 
       [file_1, rank, file_2]
     # elsif is_a_promotion_move?(move)
       # promote
     end
+  end
+
+  def rank_to_number(rank)
+    rank.to_i - 1
+  end
+
+  def file_to_number(file)
+    file.ord - 97
+  end
+
+  def is_a_disambiguating_move?(move)
+    is_a_special_piece?(move[0]) && move.size >= 4 && 
+      (is_a_file?(move[1]) || is_a_rank?(move[1]))
   end
 
   def is_a_promotion_move?(move)
@@ -99,6 +129,10 @@ class Game
     is_a_file?(move[0]) && is_a_x?(move[1]) && is_a_pawn_move?(move[2..3])
   end
 
+  def is_a_special_piece?(letter)
+    ['N', 'Q', 'R', 'B'].include?(letter)
+  end
+
   def is_a_piece?(letter)
     ['N', 'K', 'Q', 'R', 'B'].include?(letter)
   end
@@ -108,11 +142,7 @@ class Game
   end
 
   def is_a_rank?(letter)
-    (1..8).include?(letter)
-  end
-
-  def column_to_number(column)
-    column.ord - 96
+    ('1'..'8').include?(letter)
   end
 
   def is_a_x?(letter)
@@ -122,11 +152,28 @@ class Game
   def is_an_equals?(letter)
     letter == '='
   end
+
+  def is_move_a_knight?(move)
+    move[0] == 'N'
+  end
+
+  def is_move_a_bishop?(move)
+    move[0] == 'B'
+  end
+
+  def is_move_a_rook?(move)
+    move[0] == 'R'
+  end
+
+  def is_move_a_queen?(move)
+    move[0] == 'Q'
+  end
+
+  def is_move_a_king?(move)
+    move[0] == 'K'
+  end
 end
 
 gameboard = Gameboard.new
 game = Game.new(gameboard, 1, 1)
-
-game.fill_board
-puts game.gameboard.display_board
 

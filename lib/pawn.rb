@@ -10,7 +10,15 @@ class Pawn < Piece
     @direction = pick_direction
   end
 
-  def moves(square)
+  def moves(move)
+    if move.length == 2
+      pawn_moves(move)
+    else
+      attack_moves(move)
+    end
+  end
+
+  def pawn_moves(square)
     return false unless square_empty?(square)
 
     row = square[0]
