@@ -86,97 +86,105 @@ describe "Game" do
     end
   end
 
-  describe "#convert_pawn_move" do
-    it "return correct move when a pawn move" do
-      game = Game.new(Gameboard.new, 1, 1)
-      expect(game.convert_pawn_move('e4')).to eql([3, 4])
+  describe "#convert_move" do
+    context "when pawn" do
+      it "return correct move when a pawn move" do
+        game = Game.new(Gameboard.new, 1, 1)
+        expect(game.convert_move('e4')).to eql([3, 4])
+      end
+
+      it "return correct move when a pawn attack move" do
+        game = Game.new(Gameboard.new, 1, 1)
+        expect(game.convert_move('fxg6')).to eql([5, 5, 6])
+      end
     end
 
-    it "return correct move when a pawn attack move" do
-      game = Game.new(Gameboard.new, 1, 1)
-      expect(game.convert_pawn_move('fxg6')).to eql([5, 5, 6])
-    end
-  end
-
-  describe "#convert_piece_move" do
     context "when queen" do
       it "return correct move when move" do
         game = Game.new(Gameboard.new, 1, 1)
-        expect(game.convert_piece_move('Qa4')).to eql([3, 0])
+        expect(game.convert_move('Qa4')).to eql([3, 0])
       end
 
       it "return correct move when attack move" do
         game = Game.new(Gameboard.new, 1, 1)
-        expect(game.convert_piece_move('Qxb5')).to eql([4, 1])
+        expect(game.convert_move('Qxb5')).to eql([4, 1])
       end
     end
 
     context "when rook" do
       it "return correct move when move" do
         game = Game.new(Gameboard.new, 1, 1)
-        expect(game.convert_piece_move('Re4')).to eql([3, 4])
+        expect(game.convert_move('Re4')).to eql([3, 4])
       end
 
       it "return correct move when attack move" do
         game = Game.new(Gameboard.new, 1, 1)
-        expect(game.convert_piece_move('Rxg6')).to eql([5, 6])
+        expect(game.convert_move('Rxg6')).to eql([5, 6])
       end
 
       it "return correct move when disambiguating attack move" do
         game = Game.new(Gameboard.new, 1, 1)
-        expect(game.convert_piece_move('Raxg6')).to eql([5, 6, 0])
+        expect(game.convert_move('Raxg6')).to eql([5, 6, 0])
       end
     end
 
     context "when knight" do
       it "return correct move when move" do
         game = Game.new(Gameboard.new, 1, 1)
-        expect(game.convert_piece_move('Ne4')).to eql([3, 4])
+        expect(game.convert_move('Ne4')).to eql([3, 4])
       end
 
       it "return correct move when attack move" do
         game = Game.new(Gameboard.new, 1, 1)
-        expect(game.convert_piece_move('Nxh4')).to eql([3, 7])
+        expect(game.convert_move('Nxh4')).to eql([3, 7])
       end
 
       it "return correct move when disambiguating attack move" do
         game = Game.new(Gameboard.new, 1, 1)
-        expect(game.convert_piece_move('N2xh4')).to eql([3, 7, 1])
+        expect(game.convert_move('N2xh4')).to eql([3, 7, 1])
       end
 
       it "return correct move when disambiguating move" do
         game = Game.new(Gameboard.new, 1, 1)
-        expect(game.convert_piece_move('Ncg4')).to eql([3, 6, 2])
+        expect(game.convert_move('Ncg4')).to eql([3, 6, 2])
       end
     end
 
     context "when bishop" do
       it "return correct move when move" do
         game = Game.new(Gameboard.new, 1, 1)
-        expect(game.convert_piece_move('Ba8')).to eql([7, 0])
+        expect(game.convert_move('Ba8')).to eql([7, 0])
       end
 
       it "return correct move when attack move" do
         game = Game.new(Gameboard.new, 1, 1)
-        expect(game.convert_piece_move('Bxc3')).to eql([2, 2])
+        expect(game.convert_move('Bxc3')).to eql([2, 2])
       end
 
       it "return correct move when disambiguating move" do
         game = Game.new(Gameboard.new, 1, 1)
-        expect(game.convert_piece_move('Bbh8')).to eql([7, 7, 1])
+        expect(game.convert_move('Bbh8')).to eql([7, 7, 1])
       end
     end
 
     context "when king" do
       it "return correct move pawn move" do
         game = Game.new(Gameboard.new, 1, 1)
-        expect(game.convert_piece_move('Ke2')).to eql([1, 4])
+        expect(game.convert_move('Ke2')).to eql([1, 4])
       end
 
       it "return correct move when attack move" do
         game = Game.new(Gameboard.new, 1, 1)
-        expect(game.convert_piece_move('Kxd4')).to eql([3, 3])
+        expect(game.convert_move('Kxd4')).to eql([3, 3])
       end
+    end
+  end
+
+  context "#promotion" do
+    it "return correct piece" do
+      game = Game.new(Gameboard.new, 1, 1)
+      game.gameboard.board[7][6] = Pawn.new(game.gameboard, "white", [7, 6])
+      expect(game.promotion([7, 6, "R"], "white").class).to eql(Rook)
     end
   end
 end

@@ -33,7 +33,7 @@ class Gameboard
     end
   end
 
-  def white_pieces_characters
+  def black_pieces_characters
     {
       Queen: "\u2655".encode("utf-8"),
       Rook: "\u2656".encode("utf-8"),
@@ -44,7 +44,7 @@ class Gameboard
     }
   end
 
-  def black_pieces_characters
+  def white_pieces_characters
     {
       Queen: "\u265B".encode("utf-8"),
       Rook: "\u265C".encode("utf-8"),
@@ -59,7 +59,7 @@ class Gameboard
   def display_board
     graphic_board = ""
 
-    convert_board.each do |row|
+    convert_board.reverse.each do |row|
       graphic_board += "|#{row.join("|")}|\n"
     end
 
