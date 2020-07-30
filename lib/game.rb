@@ -1,4 +1,5 @@
 require './lib/gameboard'
+require './lib/player'
 require './lib/queen'
 require './lib/rook'
 require './lib/bishop'
@@ -8,11 +9,75 @@ require './lib/king'
 
 class Game
   attr_reader :player_1, :player_2, :gameboard
+  attr_accessor :checkmate
 
   def initialize(gameboard, player_1, player_2)
     @player_1 = player_1
     @player_2 = player_2
     @gameboard = gameboard
+    @checkmate = false
+  end
+
+  def start_game
+    fill_board
+    puts gameboard.display_board
+
+    until checkmate
+      player_turn(player_1)
+      player_turn(player_2)
+    end
+  end
+
+  def player_turn(player)
+    player_move = player.input
+    move = convert_move(player_move)
+
+    if is_move_a_pawn?(player_move)
+      pawn = Pawn.new(gameboard, player.color, [0, 0])
+      if is_a_promotion_move?(player_move)
+        piece = promotion(move, player.color)
+        move.pop
+      else          
+        pawn.moves(move)
+      end
+    elsif is_move_a_knight?(player_move)
+      knight = Knight.new(gameboard, player.color, [0, 0])
+      piece = knight.moves(move)
+    elsif is_move_a_bishop?(player_move)
+      bishop = Bishop.new(gameboard, player.color, [0, 0])
+      piece = bishop.moves(move)
+    elsif is_move_a_rook?(player_move)
+      rook = Rook.new(gameboard, player.color, [0, 0])
+      piece = rook.moves(move)
+    elsif is_move_a_queen?(player_move)
+      queen = Queen.new(gameboard, player.color, [0, 0])
+      piece = queen.moves(move)
+    elsif is_move_a_king?(player_move)
+      king = King.new(gameboard, player.color, [0, 0])
+      piece = king.moves(move)
+    end
+
+    write_move(piece, move[-2..-1])
+    change_piece_position(piece, move[-2..-1])
+
+    puts gameboard.display_board
+  end
+
+  def write_move(piece, square)
+    p piece.class, square
+    row = square[0]
+    col = square[1]
+    piece_row = piece.position[0]
+    piece_col = piece.position[1]
+
+    equal = [row,col] == [piece_row,piece_col]
+
+    gameboard.board[row][col] = piece
+    gameboard.board[piece_row][piece_col] = " " unless equal
+  end
+
+  def change_piece_position(piece, square)
+    piece.position = square
   end
 
   def fill_board
@@ -27,6 +92,8 @@ class Game
                   fill_pawn_row(row_idx, col, "black")
                 when 7
                   fill_pieces_row(row_idx, col, "black")
+                else
+                  " "
                 end
 
         gameboard.board[row_idx][col] = piece
@@ -69,8 +136,10 @@ class Game
     end
   end
   
-  def convert_piece_move(move)
-    if is_a_disambiguating_move?(move)
+  def convert_move(move)
+    if is_a_file?(move[0])
+      convert_pawn_move(move)
+    elsif is_a_disambiguating_move?(move)
       final_move = convert_pawn_move(move[-2..-1])
       final_move << convert_rank_or_file(move[1])
     elsif is_a_piece?(move[0])
@@ -87,21 +156,55 @@ class Game
   end
 
   def convert_pawn_move(move)
-    if is_a_pawn_move?(move) 
-      file = file_to_number(move[0])
-      rank = rank_to_number(move[1])
-
-      [rank, file]
-    elsif is_a_pawn_attack_move?(move) 
+    if is_a_pawn_attack_move?(move) 
       file_1 = file_to_number(move[0])
       file_2 = file_to_number(move[2])
       rank = rank_to_number(move[3])
 
       [file_1, rank, file_2]
-    # elsif is_a_promotion_move?(move)
-      # promote
+    elsif is_a_promotion_move?(move)
+      file = file_to_number(move[0])
+      rank = rank_to_number(move[1])
+      piece_letter = move[3]
+
+      [rank, file, piece_letter]
+    else#if is_a_pawn_move?(move)
+      file = file_to_number(move[0])
+      rank = rank_to_number(move[1])
+
+      [rank, file]
     end
   end
+
+  def promotion(move, color)
+    row = move[0]
+    col = move[1]
+    piece_letter = move[2]
+    square = gameboard.board[row][col]
+
+    return false unless square.is_a?(Pawn)
+
+    if color == "white" && row == gameboard.board_size || 
+        color == "black" && row == 0
+      return promote(piece_letter, color)
+    else
+      false
+    end
+  end
+
+  def promote(letter, color)
+    case letter
+    when "Q"
+      Queen.new(gameboard, color, [0, 0])
+    when "R"
+      Rook.new(gameboard, color, [0, 0])
+    when "B"
+      Bishop.new(gameboard, color, [0, 0])
+    when "N"
+      Knight.new(gameboard, color, [0, 0])
+    end
+  end
+
 
   def rank_to_number(rank)
     rank.to_i - 1
@@ -117,12 +220,12 @@ class Game
   end
 
   def is_a_promotion_move?(move)
-    is_a_file?(move[0]) && is_a_rank?(move[1]) && is_an_equals?(move[2]) && 
-      ['N', 'B', 'R', 'Q'].include?(move[3])
+    is_a_pawn_move?(move[0..1]) && is_an_equals?(move[2]) &&
+      is_a_special_piece?(move[3])
   end
 
   def is_a_pawn_move?(move)
-    move.size == 2 && is_a_file?(move[0]) && is_a_rank?(move[1])
+    is_a_file?(move[0]) && is_a_rank?(move[1])
   end
 
   def is_a_pawn_attack_move?(move)
@@ -172,8 +275,16 @@ class Game
   def is_move_a_king?(move)
     move[0] == 'K'
   end
+
+  def is_move_a_pawn?(move)
+    is_a_file?(move[0])    
+  end
 end
 
 gameboard = Gameboard.new
-game = Game.new(gameboard, 1, 1)
+player_1 = Player.new('white')
+player_2 = Player.new('black')
+game = Game.new(gameboard, player_1, player_2)
+
+game.start_game
 

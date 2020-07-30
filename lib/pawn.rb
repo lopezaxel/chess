@@ -13,6 +13,8 @@ class Pawn < Piece
   def moves(move)
     if move.length == 2
       pawn_moves(move)
+    elsif move.include?("=") && move.length == 4
+      promotion(move)
     else
       attack_moves(move)
     end
@@ -49,7 +51,6 @@ class Pawn < Piece
     piece = gameboard.board[piece_row][piece_col]
     pawn = gameboard.board[piece_row + direction][pawn_col]
 
-    #return false if is_empty?(piece) || same_color?(piece)
     if is_a_pawn?(pawn) && same_color?(pawn)
       pawn
     else
@@ -65,33 +66,6 @@ class Pawn < Piece
       true
     else
       false
-    end
-  end
-
-  def promotion(move)
-    row = move[0]
-    col = move[1]
-    piece_letter = move[2]
-
-    if white? && row == gameboard.board_size || black? && row == 0
-      gameboard.board[row][col] = promote(piece_letter)
-      #gameboard.board[row][col].color = color
-      #gameboard.board[row][col].position = [row, col]
-    else
-      false
-    end
-  end
-
-  def promote(letter)
-    case letter
-    when "Q"
-      #Queen.new
-    when "R"
-      #Rook.new
-    when "B"
-      #Bishop.new
-    when "N"
-      #Knight.new
     end
   end
 
