@@ -20,6 +20,7 @@ class Game
 
   def start_game
     fill_board
+    set_players_king(player_1, player_2)
     puts gameboard.display_board
 
     until checkmate
@@ -29,51 +30,98 @@ class Game
   end
 
   def player_turn(player)
-    player_move = player.input
-    move = convert_move(player_move)
+    loop do
+      player_move = player.input
+      move = convert_move(player_move)
 
+      piece = check_valid_move(move, player_move, player.color)
+
+      next if piece == false 
+
+      before_piece = gameboard.board[move[-2]][move[-1]]
+
+      write_move(piece, move[-2..-1])
+      change_piece_position(piece, move[-2..-1])
+
+      king_is_in_check(player)
+      if player.king_in_check
+        undo_move(piece, before_piece, move)
+        next
+      end
+
+      puts gameboard.display_board
+
+      break
+    end
+  end
+
+  def undo_move(piece, square, move)
+    write_move(square, move[-2..-1])
+    write_move(piece, piece.position)
+    change_piece_position(piece, piece.position)
+  end
+
+  def king_is_in_check(player)
+    enemy_color = enemy_color(player.color)
+    player_king = player.king.position
+    if square_is_supported(player_king, enemy_color)
+      player.king_in_check = true
+    else
+      player.king_in_check = false
+    end
+  end
+
+  def give_king_to_player(player)
+    king = case player.color
+           when "white"
+             gameboard.board[0][4]
+           when "black"
+             gameboard.board[7][4]
+           end
+    player.king = king
+  end
+
+  def set_players_king(player_1, player_2)
+    give_king_to_player(player_1)
+    give_king_to_player(player_2)
+  end
+
+  def check_valid_move(move, player_move, color)
     if is_move_a_pawn?(player_move)
-      pawn = Pawn.new(gameboard, player.color, [0, 0])
+      piece = Pawn.new(gameboard, color, [0, 0])
       if is_a_promotion_move?(player_move)
-        piece = promotion(move, player.color)
+        piece = promotion(move, color)
         move.pop
-      else          
-        pawn.moves(move)
+
+        return piece
       end
     elsif is_move_a_knight?(player_move)
-      knight = Knight.new(gameboard, player.color, [0, 0])
-      piece = knight.moves(move)
+      piece = Knight.new(gameboard, color, [0, 0])
     elsif is_move_a_bishop?(player_move)
-      bishop = Bishop.new(gameboard, player.color, [0, 0])
-      piece = bishop.moves(move)
+      piece = Bishop.new(gameboard, color, [0, 0])
     elsif is_move_a_rook?(player_move)
-      rook = Rook.new(gameboard, player.color, [0, 0])
-      piece = rook.moves(move)
+      piece = Rook.new(gameboard, color, [0, 0])
     elsif is_move_a_queen?(player_move)
-      queen = Queen.new(gameboard, player.color, [0, 0])
-      piece = queen.moves(move)
+      piece = Queen.new(gameboard, color, [0, 0])
     elsif is_move_a_king?(player_move)
-      king = King.new(gameboard, player.color, [0, 0])
-      piece = king.moves(move)
+      piece = King.new(gameboard, color, [0, 0])
+    else
+      return false
     end
 
-    write_move(piece, move[-2..-1])
-    change_piece_position(piece, move[-2..-1])
-
-    puts gameboard.display_board
+    piece.moves(move)
   end
 
   def write_move(piece, square)
-    p piece.class, square
     row = square[0]
     col = square[1]
+    gameboard.board[row][col] = piece
+
+    return if piece.is_a?(String) || piece.is_a?(Array)
+
     piece_row = piece.position[0]
     piece_col = piece.position[1]
-
-    equal = [row,col] == [piece_row,piece_col]
-
-    gameboard.board[row][col] = piece
-    gameboard.board[piece_row][piece_col] = " " unless equal
+    gameboard.board[piece_row][piece_col] = " "
   end
 
   def change_piece_position(piece, square)
@@ -168,7 +216,7 @@ class Game
       piece_letter = move[3]
 
       [rank, file, piece_letter]
-    else#if is_a_pawn_move?(move)
+    else
       file = file_to_number(move[0])
       rank = rank_to_number(move[1])
 
@@ -177,31 +225,31 @@ class Game
   end
 
   def promotion(move, color)
+    p = Pawn.new(gameboard, color, [0, 0])
+
     row = move[0]
     col = move[1]
     piece_letter = move[2]
-    square = gameboard.board[row][col]
 
-    return false unless square.is_a?(Pawn)
+    return false unless gameboard.board[row+p.direction][col].class == Pawn
 
-    if color == "white" && row == gameboard.board_size || 
-        color == "black" && row == 0
-      return promote(piece_letter, color)
+    if color == "white" && row == 7 || color == "black" && row == 0
+      promote(piece_letter, color, [row + p.direction, col])
     else
       false
     end
   end
 
-  def promote(letter, color)
+  def promote(letter, color, position)
     case letter
     when "Q"
-      Queen.new(gameboard, color, [0, 0])
+      Queen.new(gameboard, color, position)
     when "R"
-      Rook.new(gameboard, color, [0, 0])
+      Rook.new(gameboard, color, position)
     when "B"
-      Bishop.new(gameboard, color, [0, 0])
+      Bishop.new(gameboard, color, position)
     when "N"
-      Knight.new(gameboard, color, [0, 0])
+      Knight.new(gameboard, color, position)
     end
   end
 
@@ -278,6 +326,14 @@ class Game
 
   def is_move_a_pawn?(move)
     is_a_file?(move[0])    
+  end
+
+  def enemy_color(color)
+    if color == "white"
+      "black"
+    else
+      "white"
+    end
   end
 end
 

@@ -183,7 +183,7 @@ describe "Game" do
   context "#promotion" do
     it "return correct piece" do
       game = Game.new(Gameboard.new, 1, 1)
-      game.gameboard.board[7][6] = Pawn.new(game.gameboard, "white", [7, 6])
+      game.gameboard.board[6][6] = Pawn.new(game.gameboard, "white", [6, 6])
       expect(game.promotion([7, 6, "R"], "white").class).to eql(Rook)
     end
   end

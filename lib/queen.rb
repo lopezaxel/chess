@@ -21,6 +21,8 @@ class Queen < Piece
     col = move[1]
     queens = []
 
+    return [] if valid_queen?(gameboard.board[row][col])
+
     queens << rook_moves(row, col, "top")
     queens << rook_moves(row, col, "bottom")
     queens << rook_moves(row, col, "right")
