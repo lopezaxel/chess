@@ -55,13 +55,25 @@ class Game
     end
   end
 
+  def player_pieces(player)
+    pieces = []
+
+    gameboard.board.each do |row|
+      row.each do |square|
+        next if square.is_a?(String) && !(square.color == player.color)
+
+        p square
+        pieces << square
+      end
+    end
+  end
+
   def undo_move(piece, square, move)
     write_move(square, move[-2..-1])
     write_move(piece, piece.position)
     change_piece_position(piece, piece.position)
   end
-
-  def king_is_in_check(player)
+def king_is_in_check(player)
     enemy_color = enemy_color(player.color)
     player_king = player.king.position
     if square_is_supported(player_king, enemy_color)
@@ -253,7 +265,6 @@ class Game
     end
   end
 
-
   def rank_to_number(rank)
     rank.to_i - 1
   end
@@ -342,5 +353,8 @@ player_1 = Player.new('white')
 player_2 = Player.new('black')
 game = Game.new(gameboard, player_1, player_2)
 
-game.start_game
+pi = game.player_pieces(player_1)
+#pi.each {|n| p n.class}
+
+#game.start_game
 
