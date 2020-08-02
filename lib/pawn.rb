@@ -20,6 +20,35 @@ class Pawn < Piece
     end
   end
 
+  def legal_moves
+    row = position[0]
+    col = position[1]
+    legal_moves = []
+
+    square_above = gameboard.board[row - direction][col]
+    two_squares_above = gameboard.board[row - direction * 2][col]
+    diagonal_left = gameboard.board[row - direction][col - 1]
+    diagonal_right = gameboard.board[row - direction][col + 1]
+  
+    if is_empty?(square_above)
+      legal_moves << [row - direction, col]
+    end
+
+    if is_empty?(square_above) && is_empty?(two_squares_above) && hasnt_moved?
+      legal_moves << [row - direction * 2, col]
+    end
+
+    if !same_color?(diagonal_left) && !is_empty?(diagonal_left)
+      legal_moves << [row - direction, col - 1]
+    end
+
+    if !same_color?(diagonal_right) && !is_empty?(diagonal_right)
+      legal_moves << [row - direction, col + 1] 
+    end
+
+    legal_moves
+  end
+
   def pawn_moves(square)
     return false unless square_empty?(square)
 
@@ -77,7 +106,7 @@ class Pawn < Piece
     end
   end
 
-  def hasnt_moved?(pawn)
+  def hasnt_moved?(pawn = self)
     pawn.initial_position == pawn.position
   end
 

@@ -1,12 +1,10 @@
 require './lib/piece.rb'
 
 class King < Piece
-  attr_reader :game
 
   def initialize(gameboard, color, position)
     super(gameboard, color, position)
     @initial_position = position
-    @game = Game.new(gameboard, 1, 1)
   end
 
   def moves(square)
@@ -24,6 +22,18 @@ class King < Piece
     end
 
     false
+  end
+
+  def legal_moves
+    legal_moves = king_moves(position)
+
+    legal_moves.keep_if do |move|
+      square = gameboard.board[move[0]][move[1]]
+
+      is_empty?(square) || !same_color?(square)
+    end
+
+    legal_moves
   end
 
   def king_moves(square)

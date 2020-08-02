@@ -7,7 +7,7 @@ class Bishop < Piece
 
   def moves(move)
     bishops = diagonals(move)
-    disambiguate(bishops, move)
+    disambiguate(bishops, move) 
   end
 
   def diagonals(move)
@@ -21,6 +21,59 @@ class Bishop < Piece
     bishops << diagonal(row, col, "bottom_left")
 
     remove_falses(bishops)
+  end
+
+  def legal_moves
+    row = position[0]
+    col = position[1]
+    legal_moves = []
+
+    legal_moves << legal_diagonal(row, col, "top_right")
+    legal_moves << legal_diagonal(row, col, "top_left")
+    legal_moves << legal_diagonal(row, col, "bottom_right")
+    legal_moves << legal_diagonal(row, col, "bottom_left")
+
+    legal_moves.flatten(1).uniq
+  end
+
+  def diagonal(row, col, direction)
+    row_direction(row, direction).each do |r|
+      return false unless gameboard.inside_board?([r, col])
+
+      square = gameboard.board[r][col]
+
+      if is_a_bishop?(square) && same_color?(square)
+        return square
+      elsif !is_empty?(square) && [r, col] != [row, col]
+        return false
+      end
+
+      col = column_direction(col, direction)
+    end
+  end
+
+  def legal_diagonal(row, col, direction)
+    moves = []
+
+    row_direction(row, direction).each do |r|
+      next if [r, col] == [row, col] 
+      next unless gameboard.inside_board?([r, col])
+
+      col = column_direction(col, direction)
+
+      square = gameboard.board[r][col]
+
+      if is_empty?(square) 
+        moves << [r, col]
+      elsif !same_color?(square)
+        moves << [r, col]
+        break
+      else
+        break
+      end
+    end
+
+    moves
   end
 
   def row_direction(row, direction)
@@ -38,22 +91,6 @@ class Bishop < Piece
       num += 1
     when "bottom_left", "top_left"
       num -= 1
-    end
-  end
-
-  def diagonal(row, col, direction)
-    row_direction(row, direction).each do |r|
-      return false unless gameboard.inside_board?([r, col])
-
-      square = gameboard.board[r][col]
-
-      if is_a_bishop?(square) && same_color?(square)
-        return square
-      elsif !is_empty?(square) && [r, col] != [row, col]
-        return false
-      end
-
-      col = column_direction(col, direction)
     end
   end
 

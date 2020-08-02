@@ -25,12 +25,19 @@ class Game
 
     until checkmate
       player_turn(player_1)
+      break if checkmate
       player_turn(player_2)
     end
   end
 
   def player_turn(player)
     loop do
+      king_is_in_check(player)
+      if player.king_in_check
+        check_if_checkmate(player)
+        break if checkmate
+      end
+
       player_move = player.input
       move = convert_move(player_move)
 
@@ -39,13 +46,14 @@ class Game
       next if piece == false 
 
       before_piece = gameboard.board[move[-2]][move[-1]]
+      before_position = piece.position
 
       write_move(piece, move[-2..-1])
       change_piece_position(piece, move[-2..-1])
 
       king_is_in_check(player)
       if player.king_in_check
-        undo_move(piece, before_piece, move)
+        undo_move(piece, before_piece, before_position, move[-2..-1])
         next
       end
 
@@ -55,25 +63,78 @@ class Game
     end
   end
 
+  def check_if_checkmate(player)
+    pieces = player_pieces(player)
+    no_moves = true
+
+    pieces.each do |piece|
+      legal_moves(piece).each do |move|
+        next unless gameboard.inside_board?(move)
+
+        before_piece = gameboard.board[move[0]][move[1]]
+        before_position = piece.position
+
+        write_move(piece, move)
+        change_piece_position(piece, move) 
+
+        king_is_in_check(player)
+        unless player.king_in_check
+          no_moves = false
+        end
+
+        undo_move(piece, before_piece, before_position, move)
+      end
+    end
+
+    self.checkmate = true if no_moves
+  end
+
+  def legal_moves(piece)
+    legal_moves = piece.legal_moves
+    if piece.class == King
+      legal_moves.delete_if do |square|
+        square_is_supported(square, piece.contrary_color)
+      end
+    end
+
+    legal_moves
+  end
+
   def player_pieces(player)
     pieces = []
 
     gameboard.board.each do |row|
       row.each do |square|
-        next if square.is_a?(String) && !(square.color == player.color)
+        next unless !square.is_a?(String) && square.color == player.color
 
-        p square
-        pieces << square
+        pieces << square 
       end
     end
+
+    pieces
   end
 
-  def undo_move(piece, square, move)
-    write_move(square, move[-2..-1])
-    write_move(piece, piece.position)
-    change_piece_position(piece, piece.position)
+  def undo_move(piece, before_piece, before_position, move)
+    #require 'pry';binding.pry if gameboard.board[3][4].class == Knight
+    write_move(before_piece, move)
+    change_piece_position(piece, before_position)
+    write_move(piece, before_position)
   end
-def king_is_in_check(player)
+
+  def write_move(piece, square)
+    row = square[0]
+    col = square[1]
+    gameboard.board[row][col] = piece
+
+    return if piece.is_a?(String) || piece.is_a?(Array) || piece.nil? ||
+      piece.position == square
+
+    piece_row = piece.position[0]
+    piece_col = piece.position[1]
+    gameboard.board[piece_row][piece_col] = " "
+  end
+
+  def king_is_in_check(player)
     enemy_color = enemy_color(player.color)
     player_king = player.king.position
     if square_is_supported(player_king, enemy_color)
@@ -122,18 +183,6 @@ def king_is_in_check(player)
     end
 
     piece.moves(move)
-  end
-
-  def write_move(piece, square)
-    row = square[0]
-    col = square[1]
-    gameboard.board[row][col] = piece
-
-    return if piece.is_a?(String) || piece.is_a?(Array)
-
-    piece_row = piece.position[0]
-    piece_col = piece.position[1]
-    gameboard.board[piece_row][piece_col] = " "
   end
 
   def change_piece_position(piece, square)
@@ -353,8 +402,5 @@ player_1 = Player.new('white')
 player_2 = Player.new('black')
 game = Game.new(gameboard, player_1, player_2)
 
-pi = game.player_pieces(player_1)
-#pi.each {|n| p n.class}
-
-#game.start_game
+game.start_game
 

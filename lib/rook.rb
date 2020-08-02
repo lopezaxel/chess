@@ -7,21 +7,7 @@ class Rook < Piece
 
   def moves(move)
     rooks = rook_moves(move)
-    disambiguate(rooks, move)
-  end
-
-  def check_direction(row, col, direction)
-    choose_direction(row, col, direction).each do |i|
-      return false unless gameboard.inside_board?([i, col])
-
-      square = pick_square(direction, row, col, i)
-
-      if is_a_rook?(square) && same_color?(square)
-        return square
-      elsif !is_empty?(square) && not_initial_square(row, col, i)
-        return false
-      end
-    end
+    disambiguate(rooks, move) 
   end
 
   def rook_moves(move)
@@ -37,6 +23,66 @@ class Rook < Piece
     remove_falses(rooks)
   end
 
+  def legal_moves
+    row = position[0]
+    col = position[1]
+    legal_moves = []
+
+    legal_moves << legal_rook_moves(row, col, "top")
+    legal_moves << legal_rook_moves(row, col, "bottom")
+    legal_moves << legal_rook_moves(row, col, "right")
+    legal_moves << legal_rook_moves(row, col, "left")
+
+    legal_moves.flatten(1).uniq
+  end
+
+  def legal_rook_moves(row, col, direction)
+    moves = []
+
+    choose_direction(row, col, direction).each do |i|
+      next unless gameboard.inside_board?([i, col])
+
+      move = pick_square(direction, row, col, i)
+      square = gameboard.board[move[0]][move[1]]
+
+      if is_empty?(square)
+        moves << move
+      elsif same_color?(square)
+        break
+      else
+        moves << move
+        break
+      end
+    end
+
+    moves
+  end
+
+  def check_direction(row, col, direction)
+    choose_direction(row, col, direction).each do |i|
+      return false unless gameboard.inside_board?([i, col])
+
+      move = pick_square(direction, row, col, i)
+      square = gameboard.board[move[0]][move[1]]
+
+      if is_a_rook?(square) && same_color?(square)
+        return square
+      elsif !is_empty?(square) && not_initial_square(row, col, i)
+        return false
+      end
+    end
+  end
+
+  def pick_square(direction, row, col, i)
+    return if gameboard.board.nil? || row.nil? || col.nil? || i.nil?
+    case direction
+      when "top", "bottom"
+        [i, col]
+      when "right", "left"
+        [row, i]
+      end
+  end
+
   def choose_direction(row, col, direction)
     case direction
     when "top"
@@ -48,16 +94,6 @@ class Rook < Piece
     when "left"
       (col - 8..col).to_a.reverse
     end
-  end
-
-  def pick_square(direction, row, col, i)
-    return if gameboard.board.nil? || row.nil? || col.nil? || i.nil?
-    case direction
-      when "top", "bottom"
-        gameboard.board[i][col]
-      when "right", "left"
-        gameboard.board[row][i]
-      end
   end
 
   def is_a_rook?(piece)

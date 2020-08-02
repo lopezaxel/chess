@@ -8,8 +8,8 @@ class Piece
     @position = position
   end
 
-  def same_color?(pawn)
-    pawn.color == color
+  def same_color?(piece)
+    piece.color == color unless piece.is_a?(String) || piece.nil?
   end
 
   def is_empty?(string)

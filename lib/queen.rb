@@ -13,7 +13,7 @@ class Queen < Piece
 
   def moves(move)
     queens = queen_moves(move)
-    disambiguate(queens, move)
+    disambiguate(queens, move) 
   end
 
   def queen_moves(move)
@@ -36,11 +36,23 @@ class Queen < Piece
     remove_falses(queens)
   end
 
+  def legal_moves
+    row = position[0]
+    col = position[1]
+    legal_moves = []
+
+    legal_moves << rook.legal_moves
+    legal_moves << bishop.legal_moves
+
+    legal_moves.flatten(1).uniq
+  end
+
   def rook_moves(row, col, direction)
     rook.choose_direction(row, col, direction).each do |i|
       return false unless gameboard.inside_board?([i, col])
 
-      square = rook.pick_square(direction, row, col, i)
+      move = rook.pick_square(direction, row, col, i)
+      square = gameboard.board[move[0]][move[1]]
 
       if valid_queen?(square)
         return square
@@ -74,5 +86,4 @@ class Queen < Piece
     is_a_queen?(piece) && same_color?(piece)
   end
 end
-
 

@@ -8,7 +8,29 @@ class Knight < Piece
   def moves(move)
     moves = possible_moves(move) 
     knights = possible_knights(moves)
-    disambiguate(knights, move)
+    disambiguate(knights, move) 
+  end
+
+  def legal_moves
+    moves = possible_moves(position)
+    legal_moves = []
+
+    moves.each do |move|
+      row = move[0]
+      col = move[1]
+      square = gameboard.board[row][col]
+
+      if is_empty?(square)
+        legal_moves << [row, col]
+      elsif same_color?(square)
+        next
+      else
+        legal_moves << [row, col]
+        next
+      end
+    end
+
+    legal_moves
   end
 
   def possible_moves(move)
