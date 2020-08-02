@@ -7,7 +7,23 @@ require './lib/knight'
 require './lib/pawn'
 require './lib/king'
 
+module Serializable
+  @@file = "./saved_game.txt"
+
+  def to_marshal(obj)
+    serialized_obj = Marshal.dump(obj)
+    file = File.open(@@file, "w") { |f| f.write(serialized_obj) }
+  end
+
+  def from_marshal
+    file = File.open(@@file, "r").read
+    Marshal.load(file)
+  end
+end
+
 class Game
+  include Serializable
+
   attr_reader :player_1, :player_2, :gameboard
   attr_accessor :checkmate
 
@@ -22,6 +38,7 @@ class Game
     fill_board
     set_players_king(player_1, player_2)
     puts gameboard.display_board
+    puts save_board_msg
 
     until checkmate
       player_turn(player_1)
@@ -32,34 +49,72 @@ class Game
 
   def player_turn(player)
     loop do
-      king_is_in_check(player)
-      if player.king_in_check
-        check_if_checkmate(player)
-        break if checkmate
+      if check_king_in_checkmate(player)
+        puts checkmate_msg
+        break
       end
 
+      puts enter_move_msg
       player_move = player.input
       move = convert_move(player_move)
+      
+      next if load_or_save_board(player_move)
 
       piece = check_valid_move(move, player_move, player.color)
 
-      next if piece == false 
-
-      before_piece = gameboard.board[move[-2]][move[-1]]
-      before_position = piece.position
-
-      write_move(piece, move[-2..-1])
-      change_piece_position(piece, move[-2..-1])
-
-      king_is_in_check(player)
-      if player.king_in_check
-        undo_move(piece, before_piece, before_position, move[-2..-1])
+      if piece == false || moves_checks_king?(player, piece, move)
+        puts invalid_move_msg
         next
       end
 
       puts gameboard.display_board
 
       break
+    end
+  end
+
+  def load_or_save_board(player_msg)
+    if player_msg == 'save'
+      save_board
+    elsif player_msg == 'load'
+      load_saved_board
+      puts gameboard.display_board
+    else
+      return false
+    end
+
+    true
+  end
+
+  def save_board
+    to_marshal(gameboard.board)
+  end
+
+  def load_saved_board
+    gameboard.board = from_marshal
+  end
+
+  def check_king_in_checkmate(player)
+    king_is_in_check(player)
+    if player.king_in_check
+      return true if check_if_checkmate(player)
+    end
+    false
+  end
+
+  def moves_checks_king?(player, piece, move)
+    before_piece = gameboard.board[move[-2]][move[-1]]
+    before_position = piece.position
+
+    write_move(piece, move[-2..-1])
+    change_piece_position(piece, move[-2..-1])
+
+    king_is_in_check(player)
+    if player.king_in_check
+      undo_move(piece, before_piece, before_position, move[-2..-1])
+      true
+    else
+      false
     end
   end
 
@@ -89,6 +144,23 @@ class Game
     self.checkmate = true if no_moves
   end
 
+  def invalid_move_msg
+    "Invalid move"
+  end
+
+  def enter_move_msg
+    "\nEnter move: "
+  end
+
+  def checkmate_msg
+    "Checkmate!"
+  end
+
+  def save_board_msg
+    "Enter at any moment 'save' to save the board, "\
+    "or 'load' to load the board."
+  end
+
   def legal_moves(piece)
     legal_moves = piece.legal_moves
     if piece.class == King
@@ -115,7 +187,6 @@ class Game
   end
 
   def undo_move(piece, before_piece, before_position, move)
-    #require 'pry';binding.pry if gameboard.board[3][4].class == Knight
     write_move(before_piece, move)
     change_piece_position(piece, before_position)
     write_move(piece, before_position)
